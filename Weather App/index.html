@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Weather Application</title>
+    <script src="/script.js"></script>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Weather App</h1>
+        <div class="search">
+            <input type="email" id="MailId" placeholder="enter email">
+            <input type="text" id="CityName" placeholder="enter city name" spellcheck="false">
+            
+        </div>
+        <div class="error">
+            <p>Invalid city name</p>
+        </div>
+            <div class="weather">
+                <img src="/images/rain.png" class="weather-icon">
+                <h1 class="temp">22</h1>
+                <h2 class="city">New York</h2>
+                <div class="details">
+                    <div class="col">
+                        <img src="/images/humidity.png" alt="">
+                        <div>
+                            <p class="humidity">50%</p>
+                            <p>Humidity</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <img src="/images/wind.png" alt="">
+                        <div>
+                            <p class="wind">15 km/hr</p>
+                            <p>Wind Speed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="button-17" id="result">Search</button>
+            <button class="button-17" type="button" onclick="emailSend()">send mail</button>
+        </div>
+    
+        <script src="https://cdn.emailjs.com/dist/email.min.js">
+        </script>
+            
+            <script>
+                const publicKey = "ZsOG_c8Be_yEhVoPJ";
+                 (function(){
+      emailjs.init(publicKey);
+   })();
+            
+            const apiKey = "fc26bed6dde917b433ee1fabde70ef0c";
+            const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+            
+            const searchBox = document.querySelector(".search input");
+            const CityName = document.getElementById("CityName")
+            const searchBtn = document.querySelector("#result");
+            const weatherIcon = document.querySelector(".weather-icon");
+            
+            let humidity, temp, wind; 
+        async function checkWeather(city){
+            let response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+            console.log(response);
+            if(response.status >= 400){
+                document.querySelector(".error").style.display = "block";
+                document.querySelector(".weather").style.display = "none";
+            }else{
+                var data = await response.json();
+
+            document.querySelector(".city").innerHTML = data.name;
+            document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°C"; 
+            temp = Math.round(data.main.temp); 
+            document.querySelector(".humidity").innerHTML = data.main.humidity + "%"; 
+            humidity = data.main.humidity;
+            document.querySelector(".wind").innerHTML = data.wind.speed + " km/hr"; 
+            wind = data.wind.speed;
+
+            if (data.weather[0].main == "clouds") {
+                weatherIcon.src = "images/clouds.png";
+            }
+            else if(data.weather[0].main == "Clear"){
+                weatherIcon.src = "images/clear.png";
+            }
+            else if(data.weather[0].main == "Rain"){
+                weatherIcon.src = "images/rain.png";
+            }
+            else if(data.weather[0].main == "Drizzle"){
+                weatherIcon.src = "images/drizzle.png";
+            }
+            else if(data.weather[0].main == "Mist"){
+                weatherIcon.src = "images/mist.png";
+            }
+
+            document.querySelector(".weather").style.display = "block";
+            document.querySelector(".error").style.display = "none";
+
+            }
+
+        }
+        
+        console.log(humidity,temp,wind);
+        function emailSend() {
+            var param ={
+                city: document.getElementById("CityName").value,
+                mail: document.getElementById("MailId").value,
+                humidity: humidity,
+                temp: temp,
+                wind: wind,
+                 
+            }
+            
+    emailjs.send("service_1h1mskk", "template_mraxk51", param, publicKey).then(function () {
+        alert("Sucess")})
+
+}
+
+
+       searchBtn.addEventListener("click",()=>{
+        checkWeather(CityName.value);
+       })
+         
+    </script>
+
+</body>
+</html>
